@@ -114,8 +114,10 @@ def get_codeql_cli_version():
             return version
         version = config.get("config", "version")
     except (configparser.NoSectionError, configparser.NoOptionError):
-        logger.error("Error parsing CodeQL config, Fallback to default version{}".format(
-            CODEQL_CLI_DEFAULT_VERSION))
+        logger.error(
+            f"Error parsing CodeQL config, Fallback to default version{CODEQL_CLI_DEFAULT_VERSION}"
+        )
+
     return version
 
 
@@ -129,11 +131,12 @@ def get_openencalve_exclusions():
             logger.error("Failed to open CodeQL config")
             return []
         paths = config.get("openenclave_exclusions", "paths")
-        paths_list = json.loads(paths)
-        return paths_list
+        return json.loads(paths)
     except (configparser.NoSectionError, configparser.NoOptionError):
-        logger.error("Error parsing CodeQL config, Fallback to default version{}".format(
-            CODEQL_CLI_DEFAULT_VERSION))
+        logger.error(
+            f"Error parsing CodeQL config, Fallback to default version{CODEQL_CLI_DEFAULT_VERSION}"
+        )
+
     return []
 
 
@@ -160,7 +163,7 @@ def get_logger(log_level=INFO):
             logger_obj.addHandler(log_handler)
         return logger_obj
     except Exception as ex:
-        print(str(ex))
+        print(ex)
 
 
 def log_banner(str):
@@ -382,10 +385,8 @@ def set_scan_path(path_arg):
     scan_path = os.path.expanduser(path_arg)
 
     # If both strings are equal, '~' is not given in the path; path given may be relative
-    if scan_path == path_arg:
-        # If the given path is not an absolute path, generate absolute path
-        if not scan_path.startswith("/"):
-            scan_path = os.path.abspath(scan_path)
+    if scan_path == path_arg and not scan_path.startswith("/"):
+        scan_path = os.path.abspath(scan_path)
 
     scan_path = os.path.normpath(scan_path)
 
@@ -428,7 +429,7 @@ def main_fun():
     scan_path = get_scan_path()
     logger.info(f"Scan directory: {scan_path}")
     if not os.path.exists(scan_path):
-        logger.error(f"...Scan directory does not exist, exiting...")
+        logger.error("...Scan directory does not exist, exiting...")
         return
 
     result = run_codeql_scan(clean=clean_build, scan_builtin_queries=scan_built_in)
@@ -438,7 +439,7 @@ def main_fun():
     if result[1] > 0:
         log_banner(f"CodeQL scan detected [{result[1]}] security issues")
     else:
-        log_banner(f"CodeQL scan analysis completed, No security issues")
+        log_banner("CodeQL scan analysis completed, No security issues")
 
 
 logger = get_logger()
